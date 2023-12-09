@@ -27,7 +27,7 @@
 
 ;;; Code:
 
-(defun org-babel-execute:js/around (orig-fn body params)
+(defun ob-js-node-eval/org-babel-execute:js/around (orig-fn body params)
   (cond
    ((member "node-eval" (map-elt params :result-params))
     (with-temp-buffer
@@ -38,7 +38,8 @@
    (t (funcall orig-fn body params))))
 
 (with-eval-after-load 'ob-js
-  (advice-add 'org-babel-execute:js :around #'org-babel-execute:js/around))
+  (advice-add 'org-babel-execute:js :around
+              #'ob-js-node-eval/org-babel-execute:js/around))
 
 (provide 'ob-js-node-eval)
 
