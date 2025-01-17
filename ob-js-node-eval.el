@@ -33,7 +33,13 @@
     (with-temp-buffer
       (insert (org-babel-expand-body:generic
 		           body params (org-babel-variable-assignments:js params)))
-      (shell-command-on-region (point-min) (point-max) "node -p -" nil 't)
+      (goto-char (point-min))
+      (if (search-forward "import " nil t)
+          (let ((tmp-file (make-temp-file "ob-js-node-eval-" nil ".mjs")))
+            (write-region (point-min) (point-max) tmp-file)
+            (erase-buffer)
+            (shell-command (concat "node " tmp-file) (current-buffer)))
+        (shell-command-on-region (point-min) (point-max) "node -p -"  nil t))
       (buffer-string)))
    (t (funcall orig-fn body params))))
 
