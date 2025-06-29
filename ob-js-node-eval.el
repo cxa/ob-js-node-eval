@@ -34,12 +34,12 @@
       (insert (org-babel-expand-body:generic
 		           body params (org-babel-variable-assignments:js params)))
       (goto-char (point-min))
-      (if (search-forward "import " nil t)
-          (let ((tmp-file (make-temp-file "ob-js-node-eval-" nil ".mjs")))
-            (write-region (point-min) (point-max) tmp-file)
-            (erase-buffer)
-            (shell-command (concat "node " tmp-file) (current-buffer)))
-        (shell-command-on-region (point-min) (point-max) "node -p -"  nil t))
+      (let ((cmd 
+             (if (or (string= "esm" (cdr (assq :module params)))
+                     (search-forward "import " nil t))
+                 "node --input-type=module -"
+               "node -")))
+        (shell-command-on-region (point-min) (point-max) cmd nil t))
       (buffer-string)))
    (t (funcall orig-fn body params))))
 
